@@ -1,0 +1,12 @@
+[package]
+name = "track-new-contract-eth"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+tokio = { version = "1.20.0", features = ["full"] }
+ethers = { git = "https://github.com/gakonst/ethers-rs" }
+chrono = "0.4.19"
+serde_json = "1.0.82"
