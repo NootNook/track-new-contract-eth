@@ -5,7 +5,7 @@ use serde_json::to_string_pretty;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    const RPC: &'static str = env!("RPC_ETH");
+    const RPC: &'static str = env!("RPC_HTTPS_ETH");
 
     let provider = Provider::<Http>::try_from(RPC).expect("could not instantiate HTTP Provider");
     let mut stream_txs = provider.watch_pending_transactions().await.unwrap().stream();
