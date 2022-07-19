@@ -1,15 +1,15 @@
 use chrono::prelude::{DateTime, Local};
-use ethers::prelude::{Http, Middleware, Provider, StreamExt, H256, Block};
+use ethers::prelude::{Block, Http, Middleware, Provider, StreamExt, H256};
 use std::env;
 
 // Helper functions
 
-fn get_provider() -> Provider<Http>{
+fn get_provider() -> Provider<Http> {
     const RPC: &'static str = env!("RPC_HTTPS_ETH");
     Provider::<Http>::try_from(RPC).expect("could not instantiate HTTP Provider")
 }
 
-fn format_data(hash: H256) -> String{
+fn format_data(hash: H256) -> String {
     let now: DateTime<Local> = Local::now();
     format!("{}\nhttps://etherscan.io/tx/{:#x}", now, hash)
 }
@@ -29,7 +29,6 @@ async fn estimate_block_number_by_timestamp(start_timestamp: u64, latest_block: 
 
     latest_block - ((timestamp_latest - start_timestamp) / AVERAGE_MINING_TIME)
 }
-
 
 // Features
 
@@ -93,7 +92,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let timestamp = Local::now().timestamp() as u64 - start;
             history_deploy_contract(timestamp).await.unwrap();
         }
-
     } else {
         println!("Unknown command...");
     }
