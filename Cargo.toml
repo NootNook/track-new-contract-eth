@@ -9,4 +9,3 @@ edition = "2021"
 tokio = { version = "1.20.0", features = ["full"] }
 ethers = { git = "https://github.com/gakonst/ethers-rs" }
 chrono = "0.4.19"
-serde_json = "1.0.82"
