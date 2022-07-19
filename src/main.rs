@@ -1,5 +1,5 @@
 use chrono::prelude::{DateTime, Local};
-use ethers::prelude::{Block, Http, Middleware, Provider, StreamExt, H256};
+use ethers::prelude::{Block, Http, Middleware, Provider, StreamExt, H256, Res};
 use std::env;
 
 // Helper functions
@@ -58,11 +58,14 @@ async fn history_deploy_contract(start_timestamp: u64) -> Result<(), Box<dyn std
     let latest_block = provider.get_block_number().await.unwrap().as_u64();
     let start_block = estimate_block_number_by_timestamp(start_timestamp, latest_block).await;
 
+    let diff_block = latest_block - start_block;
+
     for current_block in start_block..latest_block {
         if let Some(block) = provider.get_block_with_txs(current_block).await.unwrap() {
+            let current_progress = current_block - start_block;
             for tx in block.transactions.iter() {
                 if tx.to == None {
-                    println!("{}", format_data(tx.hash));
+                    println!("{} - Progressing... {}/{}", format_data(tx.hash), current_progress, diff_block);
                 }
             }
         }
