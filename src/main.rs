@@ -1,5 +1,5 @@
-use chrono::prelude::{DateTime, Local};
-use ethers::prelude::{Block, Http, Middleware, Provider, StreamExt, H256, Res};
+use chrono::prelude::{DateTime, Utc};
+use ethers::prelude::{Block, Http, Middleware, Provider, StreamExt, H256};
 use std::env;
 
 // Helper functions
@@ -10,7 +10,7 @@ fn get_provider() -> Provider<Http> {
 }
 
 fn format_data(hash: H256) -> String {
-    let now: DateTime<Local> = Local::now();
+    let now: DateTime<Utc> = Utc::now();
     format!("{}\nhttps://etherscan.io/tx/{:#x}", now, hash)
 }
 
@@ -92,7 +92,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         if ["-t", "--timestamp"].contains(&&*args[2]) {
             history_deploy_contract(start).await.unwrap();
         } else if ["-s", "--seconds"].contains(&&*args[2]) {
-            let timestamp = Local::now().timestamp() as u64 - start;
+            let timestamp = Utc::now().timestamp() as u64 - start;
             history_deploy_contract(timestamp).await.unwrap();
         }
     } else {
