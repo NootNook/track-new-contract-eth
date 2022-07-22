@@ -1,41 +1,13 @@
 mod cli;
+mod lib;
 
-use chrono::prelude::{DateTime, Utc};
-use ethers::prelude::{Block, Http, Middleware, Provider, StreamExt, H256};
-use std::env;
-
-// Helper functions
-
-fn get_provider() -> Provider<Http> {
-    const RPC: &'static str = env!("RPC_HTTPS_ETH");
-    Provider::<Http>::try_from(RPC).expect("could not instantiate HTTP Provider")
-}
-
-fn format_data(hash: H256) -> String {
-    let now: DateTime<Utc> = Utc::now();
-    format!("{}\nhttps://etherscan.io/tx/{:#x}", now, hash)
-}
-
-fn get_timestamp_on_block(block: Block<H256>) -> u64 {
-    block.timestamp.as_u64()
-}
-
-// Multiple ways, binary search...
-//I choose a big approximation
-async fn estimate_block_number_by_timestamp(start_timestamp: u64, latest_block: u64) -> u64 {
-    const AVERAGE_MINING_TIME: u64 = 13; // https://ycharts.com/indicators/ethereum_average_block_time
-
-    let provider = get_provider();
-    let data_latest_block = provider.get_block(latest_block).await.unwrap().unwrap();
-    let timestamp_latest = get_timestamp_on_block(data_latest_block);
-
-    latest_block - ((timestamp_latest - start_timestamp) / AVERAGE_MINING_TIME)
-}
+use chrono::prelude::{Utc};
+use ethers::prelude::{Middleware, StreamExt};
 
 // Features
 
 async fn live_pending_deploy_contract() -> Result<(), Box<dyn std::error::Error>> {
-    let provider = get_provider();
+    let provider = lib::get_provider();
     let mut stream_txs = provider
         .watch_pending_transactions()
         .await
@@ -47,7 +19,7 @@ async fn live_pending_deploy_contract() -> Result<(), Box<dyn std::error::Error>
         if let Some(tx) = provider.get_transaction(tx_hash).await.unwrap() {
             if tx.to == None {
                 // Creation contract
-                println!("{}", format_data(tx_hash));
+                println!("{}", lib::format_data(tx_hash));
             }
         }
     }
@@ -56,9 +28,9 @@ async fn live_pending_deploy_contract() -> Result<(), Box<dyn std::error::Error>
 }
 
 async fn history_deploy_contract(start_timestamp: u64) -> Result<(), Box<dyn std::error::Error>> {
-    let provider = get_provider();
+    let provider = lib::get_provider();
     let latest_block = provider.get_block_number().await.unwrap().as_u64();
-    let start_block = estimate_block_number_by_timestamp(start_timestamp, latest_block).await;
+    let start_block = lib::estimate_block_number_by_timestamp(start_timestamp, latest_block).await;
 
     let diff_block = latest_block - start_block;
 
@@ -67,7 +39,7 @@ async fn history_deploy_contract(start_timestamp: u64) -> Result<(), Box<dyn std
             let current_progress = current_block - start_block;
             for tx in block.transactions.iter() {
                 if tx.to == None {
-                    println!("{} - Progressing... {}/{}", format_data(tx.hash), current_progress, diff_block);
+                    println!("{} - Progressing... {}/{}", lib::format_data(tx.hash), current_progress, diff_block);
                 }
             }
         }
