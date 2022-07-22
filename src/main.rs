@@ -1,5 +1,6 @@
 use chrono::prelude::{DateTime, Utc};
 use ethers::prelude::{Block, Http, Middleware, Provider, StreamExt, H256};
+use clap::{Command, Arg, value_parser};
 use std::env;
 
 // Helper functions
@@ -78,25 +79,56 @@ async fn history_deploy_contract(start_timestamp: u64) -> Result<(), Box<dyn std
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let args: Vec<String> = env::args().collect();
+    let matches = Command::new("tracksm-eth")
+    .about("Tracknig new contracts on blockchain Ethereum")
+    .subcommand_required(true)
+    .arg_required_else_help(true)
+    .author("NootNook")
+    .subcommand(
+        Command::new("live")
+        .about("Live pending contract on blockchain")
+        .short_flag('l')
+        .long_flag("live")
+    )
+    .subcommand(
+        Command::new("history")
+        .about("History of contract deploys")
+        .short_flag('h')
+        .long_flag("history")
+        .arg(
+            Arg::new("timestamp")
+            .short('t')
+            .long("timestamp")
+            .takes_value(true)
+            .conflicts_with("seconds")
+            .required(true)
+            .value_parser(value_parser!(u64))
+            .help("History of the timestamp until the last block on the chain ")
+        )
+        .arg(
+            Arg::new("seconds")
+            .short('s')
+            .long("seconds")
+            .takes_value(true)
+            .conflicts_with("timestamp")
+            .required(true)
+            .value_parser(value_parser!(u64))
+            .help("History from last block to last block - seconds")
+        )
+    )
+    .get_matches();
 
-    if args.len() == 1 {
-        println!("write");
-        return Ok(());
-    }
-
-    if ["-l", "--live"].contains(&&*args[1]) {
-        live_pending_deploy_contract().await.unwrap();
-    } else if ["-h", "--history"].contains(&&*args[1]) {
-        let start: u64 = args[3].parse().unwrap();
-        if ["-t", "--timestamp"].contains(&&*args[2]) {
-            history_deploy_contract(start).await.unwrap();
-        } else if ["-s", "--seconds"].contains(&&*args[2]) {
-            let timestamp = Utc::now().timestamp() as u64 - start;
-            history_deploy_contract(timestamp).await.unwrap();
-        }
-    } else {
-        println!("Unknown command...");
+    match matches.subcommand() {
+        Some(("live", _)) => live_pending_deploy_contract().await.unwrap(),
+        Some(("history", history_matches)) => {
+            if let Some(timestamp) = history_matches.get_one::<u64>("timestamp") {
+                history_deploy_contract(*timestamp).await.unwrap();
+            } else if let Some(start) = history_matches.get_one::<u64>("seconds") {
+                let timestamp = Utc::now().timestamp() as u64 - *start;
+                history_deploy_contract(timestamp).await.unwrap();
+            }
+        },
+        _ => unreachable!()
     }
 
     Ok(())
