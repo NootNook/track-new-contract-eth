@@ -37,7 +37,7 @@ pub async fn history_deploy_contract(start_timestamp: u64, is_progress_status: b
       for tx in block.transactions.iter() {
         if tx.to == None {
           if is_progress_status {
-            let progression = (current_progress as f64/ diff_block as f64) * 100 as f64;
+            let progression = (current_progress as f64/ diff_block as f64) * 100_f64;
             println!("{} - Progress status : {:.2} %", format_data(tx.hash), progression);
           } else {
             println!("{}", format_data(tx.hash));
