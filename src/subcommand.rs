@@ -9,7 +9,6 @@ pub async fn live_pending_deploy_contract() -> Result<(), Box<dyn std::error::Er
         .unwrap()
         .stream();
 
-    println!("Streaming the deployment of new contracts on the Ethereum blockchain");
     while let Some(tx_hash) = stream_txs.next().await {
         if let Some(tx) = provider.get_transaction(tx_hash).await.unwrap() {
             if tx.to == None {
@@ -22,7 +21,7 @@ pub async fn live_pending_deploy_contract() -> Result<(), Box<dyn std::error::Er
     Ok(())
 }
 
-pub async fn history_deploy_contract(start_timestamp: u64) -> Result<(), Box<dyn std::error::Error>> {
+pub async fn history_deploy_contract(start_timestamp: u64, is_progress_status: bool) -> Result<(), Box<dyn std::error::Error>> {
     let provider = get_provider();
     let latest_block = provider.get_block_number().await.unwrap().as_u64();
     let start_block = estimate_block_number_by_timestamp(start_timestamp, latest_block).await;
@@ -34,7 +33,12 @@ pub async fn history_deploy_contract(start_timestamp: u64) -> Result<(), Box<dyn
             let current_progress = current_block - start_block;
             for tx in block.transactions.iter() {
                 if tx.to == None {
-                    println!("{} - Progressing... {}/{}", format_data(tx.hash), current_progress, diff_block);
+                    if is_progress_status {
+                        let progression = (current_progress as f64/ diff_block as f64) * 100 as f64;
+                        println!("{} - Progress status : {:.2} %", format_data(tx.hash), progression);
+                    } else {
+                        println!("{}", format_data(tx.hash));
+                    }
                 }
             }
         }

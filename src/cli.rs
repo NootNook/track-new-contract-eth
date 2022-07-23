@@ -1,4 +1,4 @@
-use clap::{Command, Arg, ArgMatches, value_parser};
+use clap::{Command, Arg, ArgMatches, ArgAction, value_parser};
 
 pub fn get_parser() -> ArgMatches{
     Command::new("tracksm-eth")
@@ -36,6 +36,13 @@ pub fn get_parser() -> ArgMatches{
             .required(true)
             .value_parser(value_parser!(u64))
             .help("History from last block to last block - seconds")
+        )
+        .arg(
+            Arg::new("verbose")
+            .short('v')
+            .required(false)
+            .action(ArgAction::SetTrue)
+            .help("Show progress status")
         )
     )
     .get_matches()
