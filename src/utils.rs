@@ -3,7 +3,7 @@ use ethers::prelude::{Block, H256, Middleware, Provider, Http};
 use std::{env, sync::Mutex};
 use once_cell::sync::{OnceCell};
 
-const RPC: &'static str = env!("RPC_HTTPS_ETH");
+const RPC: &str = env!("RPC_HTTPS_ETH");
 
 fn get_instance_provider() -> &'static Mutex<Provider<Http>> {
     static INSTANCE: OnceCell<Mutex<Provider<Http>>> = OnceCell::new();
