@@ -1,5 +1,4 @@
-mod cli; mod subcommand;
-
+use track_new_contract_eth::{cli, subcommand};
 use chrono::prelude::{Utc};
 
 #[tokio::main]
