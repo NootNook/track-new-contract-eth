@@ -1,21 +1,6 @@
 use chrono::prelude::{DateTime, Utc};
-use ethers::prelude::{Block, H256, Middleware, Provider, Http};
-use std::{env, sync::Mutex};
-use once_cell::sync::{OnceCell};
-
-const RPC: &str = env!("RPC_HTTPS_ETH");
-
-fn get_instance_provider() -> &'static Mutex<Provider<Http>> {
-  static INSTANCE: OnceCell<Mutex<Provider<Http>>> = OnceCell::new();
-  INSTANCE.get_or_init(|| {
-    let m = Provider::<Http>::try_from(RPC).unwrap();
-    Mutex::new(m)
-  })
-}
-
-pub fn get_provider() -> Provider<Http> {
-  get_instance_provider().lock().unwrap().clone()
-}
+use ethers::prelude::{Block, H256, Middleware};
+use crate::utils::provider::get as get_provider;
 
 pub fn format_data(hash: H256) -> String {
   let now: DateTime<Utc> = Utc::now();
@@ -36,4 +21,24 @@ pub async fn estimate_block_number_by_timestamp(start_timestamp: u64, latest_blo
   let timestamp_latest = get_timestamp_on_block(data_latest_block);
 
   latest_block - ((timestamp_latest - start_timestamp) / AVERAGE_MINING_TIME)
+}
+
+pub mod provider {
+  use std::{env, sync::Mutex};
+  use once_cell::sync::{OnceCell};
+  use ethers::prelude::{Provider, Http};
+
+  const RPC: &str = env!("RPC_HTTPS_ETH");
+
+  fn get_instance_provider() -> &'static Mutex<Provider<Http>> {
+    static INSTANCE: OnceCell<Mutex<Provider<Http>>> = OnceCell::new();
+    INSTANCE.get_or_init(|| {
+      let m = Provider::<Http>::try_from(RPC).unwrap();
+      Mutex::new(m)
+    })
+  }
+  
+  pub fn get() -> Provider<Http> {
+    get_instance_provider().lock().unwrap().clone()
+  }
 }

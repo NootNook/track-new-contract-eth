@@ -1,4 +1,7 @@
-use crate::utils::{get_provider, format_data, estimate_block_number_by_timestamp};
+use crate::utils::{
+  provider::get as get_provider,
+  format_data, 
+  estimate_block_number_by_timestamp};
 use ethers::providers::{Middleware, StreamExt};
 
 pub async fn live_pending_deploy_contract() -> Result<(), Box<dyn std::error::Error>> {

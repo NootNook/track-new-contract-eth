@@ -1,4 +1,10 @@
-use clap::{Command, Arg, ArgMatches, ArgAction, value_parser};
+use clap::{
+  Command, 
+  Arg, 
+  ArgMatches, 
+  ArgAction, 
+  value_parser
+};
 
 pub fn get_parser() -> ArgMatches{
   Command::new("tracksm-eth")
