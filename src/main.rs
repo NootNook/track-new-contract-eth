@@ -1,5 +1,4 @@
-mod cli;
-mod lib;
+mod cli; mod lib; mod provider;
 
 use chrono::prelude::{Utc};
 use ethers::prelude::{Middleware, StreamExt};
@@ -7,7 +6,7 @@ use ethers::prelude::{Middleware, StreamExt};
 // Features
 
 async fn live_pending_deploy_contract() -> Result<(), Box<dyn std::error::Error>> {
-    let provider = lib::get_provider();
+    let provider = provider::get();
     let mut stream_txs = provider
         .watch_pending_transactions()
         .await
@@ -28,7 +27,7 @@ async fn live_pending_deploy_contract() -> Result<(), Box<dyn std::error::Error>
 }
 
 async fn history_deploy_contract(start_timestamp: u64) -> Result<(), Box<dyn std::error::Error>> {
-    let provider = lib::get_provider();
+    let provider = provider::get();
     let latest_block = provider.get_block_number().await.unwrap().as_u64();
     let start_block = lib::estimate_block_number_by_timestamp(start_timestamp, latest_block).await;
 
