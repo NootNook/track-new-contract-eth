@@ -46,6 +46,9 @@ pub fn get_parser() -> ArgMatches{
     .arg(
       Arg::new("verbose")
       .short('v')
+      .long("verbose")
+      .requires("timestamp")
+      .requires("seconds")
       .required(false)
       .action(ArgAction::SetTrue)
       .help("Show progress status")

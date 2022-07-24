@@ -11,8 +11,6 @@ pub fn get_timestamp_on_block(block: Block<H256>) -> u64 {
   block.timestamp.as_u64()
 }
 
-// Multiple ways, binary search...
-//I choose a big approximation
 pub async fn estimate_block_number_by_timestamp(start_timestamp: u64, latest_block: u64) -> u64 {
   const AVERAGE_MINING_TIME: u64 = 13; // https://ycharts.com/indicators/ethereum_average_block_time
 
